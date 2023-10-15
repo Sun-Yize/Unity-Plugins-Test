@@ -1,0 +1,9 @@
+﻿  pch.cpp
+  addition.cpp
+D:\vscode_projects\Unity-Plugins-Test\dll_cpp\addition.cpp(4,5): warning C4273: 'add': inconsistent dll linkage
+D:\vscode_projects\Unity-Plugins-Test\dll_cpp\addition.h(9,29): message : see previous definition of 'add'
+  dllmain.cpp
+     Creating library D:\vscode_projects\Unity-Plugins-Test\dll_cpp\ARM\Release\dll_cpp.lib and object D:\vscode_projects\Unity-Plugins-Test\dll_cpp\ARM\Release\dll_cpp.exp
+  Generating code
+  Finished generating code
+  dll_cpp.vcxproj -> D:\vscode_projects\Unity-Plugins-Test\dll_cpp\ARM\Release\dll_cpp.dll

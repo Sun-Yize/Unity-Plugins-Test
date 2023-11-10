@@ -1,4 +1,5 @@
 demo/
-plugins/*
+plugins_old/
 repos/
 .DS_store
+plugins/dlibFaceLandmarkDetection/csharp

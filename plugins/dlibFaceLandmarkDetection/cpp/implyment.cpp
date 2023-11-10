@@ -18,14 +18,14 @@ int main() {
     FaceLandmarkDetector* detector = DlibFaceLandmarkDetector_Init();
 
     // Load shape predictor
-    if(!DlibFaceLandmarkDetector_LoadShapePredictor(detector, L"sp_human_face_68.dat")) {
+    if(!DlibFaceLandmarkDetector_LoadShapePredictor(detector, L"test_data/sp_human_face_68.dat")) {
         std::cerr << "Error loading shape predictor!" << std::endl;
         return -1;
     }
 
     // Load image using OpenCV
-    cv::Mat image = cv::imread("test.jpg", cv::IMREAD_GRAYSCALE);
-    cv::Mat image_rgb = cv::imread("test.jpg");
+    cv::Mat image = cv::imread("test_data/test.jpg", cv::IMREAD_GRAYSCALE);
+    cv::Mat image_rgb = cv::imread("test_data/test.jpg");
     if (image.empty()) {
         std::cerr << "Error reading the image!" << std::endl;
         return -1;
@@ -48,7 +48,7 @@ int main() {
 
     DlibFaceLandmarkDetector_DrawDetectLandmarkResult(detector, image_rgb.data, image_rgb.cols, image_rgb.rows, 3, false, 0, 255, 0, 255);
 
-    cv::imwrite("output_image.jpg", image_rgb);
+    cv::imwrite("test_data/output_image.jpg", image_rgb);
 
     // Dispose the detector
     DlibFaceLandmarkDetector_Dispose(detector);

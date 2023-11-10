@@ -1,0 +1,5 @@
+/Users/charlie/Documents/vscode_projects/build_test/plugins/dlibFaceLandmarkDetection/csharp/obj/Debug/net7.0/csharp.GeneratedMSBuildEditorConfig.editorconfig
+/Users/charlie/Documents/vscode_projects/build_test/plugins/dlibFaceLandmarkDetection/csharp/obj/Debug/net7.0/csharp.AssemblyInfoInputs.cache
+/Users/charlie/Documents/vscode_projects/build_test/plugins/dlibFaceLandmarkDetection/csharp/obj/Debug/net7.0/csharp.AssemblyInfo.cs
+/Users/charlie/Documents/vscode_projects/build_test/plugins/dlibFaceLandmarkDetection/csharp/obj/Debug/net7.0/csharp.csproj.CoreCompileInputs.cache
+/Users/charlie/Documents/vscode_projects/build_test/plugins/dlibFaceLandmarkDetection/csharp/obj/Debug/net7.0/csharp.csproj.AssemblyReference.cache

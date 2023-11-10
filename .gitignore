@@ -1,0 +1,4 @@
+demo/
+plugins/*
+repos/
+.DS_store

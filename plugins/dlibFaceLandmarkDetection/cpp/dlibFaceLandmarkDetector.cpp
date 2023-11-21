@@ -1,6 +1,7 @@
 #include <dlib/image_processing.h>
 #include <dlib/image_processing/frontal_face_detector.h>
 #include <dlib/opencv.h>
+#include <opencv2/opencv.hpp>
 
 struct FaceLandmarkDetector {
     dlib::frontal_face_detector detector;
@@ -8,13 +9,15 @@ struct FaceLandmarkDetector {
     dlib::array2d<unsigned char> img;
     std::vector<dlib::rectangle> faces;
     std::vector<dlib::full_object_detection> shapes;
+    cv::Mat originImage;
+    cv::Mat bgrImage;
 };
 
 extern "C" {
 
 FaceLandmarkDetector* DlibFaceLandmarkDetector_Init() {
     FaceLandmarkDetector* detector = new FaceLandmarkDetector();
-    detector->detector = dlib::get_frontal_face_detector(); // Default face detector
+    detector->detector = dlib::get_frontal_face_detector();
     return detector;
 }
 
@@ -22,10 +25,8 @@ void DlibFaceLandmarkDetector_Dispose(FaceLandmarkDetector* detector) {
     delete detector;
 }
 
-bool DlibFaceLandmarkDetector_LoadObjectDetector(FaceLandmarkDetector* detector, const wchar_t* objectDetectorFilename) {
-    std::wstring ws(objectDetectorFilename);
-    std::string str(ws.begin(), ws.end());
-
+bool DlibFaceLandmarkDetector_LoadObjectDetector(FaceLandmarkDetector* detector, const char* objectDetectorFilename) {
+    std::string str(objectDetectorFilename);
     try {
         dlib::deserialize(str) >> detector->detector;
         return true;
@@ -34,10 +35,8 @@ bool DlibFaceLandmarkDetector_LoadObjectDetector(FaceLandmarkDetector* detector,
     }
 }
 
-bool DlibFaceLandmarkDetector_LoadShapePredictor(FaceLandmarkDetector* detector, const wchar_t* shapePredictorFilename) {
-    std::wstring ws(shapePredictorFilename);
-    std::string str(ws.begin(), ws.end());
-
+bool DlibFaceLandmarkDetector_LoadShapePredictor(FaceLandmarkDetector* detector, const char* shapePredictorFilename) {
+    std::string str(shapePredictorFilename);
     try {
         dlib::deserialize(str) >> detector->sp;
         return true;
@@ -47,12 +46,18 @@ bool DlibFaceLandmarkDetector_LoadShapePredictor(FaceLandmarkDetector* detector,
     }
 }
 
-void DlibFaceLandmarkDetector_SetImage(FaceLandmarkDetector* detector, unsigned char* byteArray, int texWidth, int texHeight, int bytesPerPixel, bool flip) {
-    cv::Mat image(texHeight, texWidth, CV_8UC1, byteArray, texWidth * bytesPerPixel);
-    dlib::assign_image(detector->img, dlib::cv_image<unsigned char>(image));
-    if (flip) {
-        dlib::flip_image_left_right(detector->img, detector->img);
+void DlibFaceLandmarkDetector_SetImage(FaceLandmarkDetector* detector, unsigned char* byteArray, int width, int height, int bytesPerPixel, bool flip) {
+    detector->faces.clear();
+    detector->shapes.clear();
+    if (detector->originImage.empty() || detector->originImage.cols != width || detector->originImage.rows != height) {
+        detector->originImage.create(height, width, CV_8UC4);
     }
+    memcpy(detector->originImage.data, byteArray, width * height * bytesPerPixel);
+    cv::cvtColor(detector->originImage, detector->bgrImage, cv::COLOR_RGBA2BGR);
+    if (flip) {
+        cv::flip(detector->bgrImage, detector->bgrImage, 0);
+    }
+    dlib::assign_image(detector->img, dlib::cv_image<dlib::bgr_pixel>(detector->bgrImage));
 }
 
 int DlibFaceLandmarkDetector_Detect(FaceLandmarkDetector* detector, double adjust_threshold) {
@@ -109,99 +114,36 @@ bool DlibFaceLandmarkDetector_IsAllPartsInRect(FaceLandmarkDetector* detector) {
     return true;
 }
 
-void SetPixel(dlib::array2d<dlib::rgb_pixel>& image, long x, long y, dlib::rgb_pixel color) {
-    if (x >= 0 && x < image.nc() && y >= 0 && y < image.nr()) {
-        image[y][x] = color;
-    }
-}
-
-void DrawRectangle(dlib::array2d<dlib::rgb_pixel>& image, dlib::rectangle rect, dlib::rgb_pixel color, int thickness) {
-    long left = rect.left();
-    long top = rect.top();
-    long right = rect.right();
-    long bottom = rect.bottom();
-
-    // Horizontal lines
-    for (long x = left; x <= right; x++) {
-        for (int t = -thickness / 2; t <= thickness / 2; t++) {
-            SetPixel(image, x, top + t, color);    // Top line
-            SetPixel(image, x, bottom + t, color); // Bottom line
-        }
-    }
-    
-    // Vertical lines
-    for (long y = top; y <= bottom; y++) {
-        for (int t = -thickness / 2; t <= thickness / 2; t++) {
-            SetPixel(image, left + t, y, color);    // Left line
-            SetPixel(image, right + t, y, color);   // Right line
-        }
-    }
-}
-
-void DrawCircle(dlib::array2d<dlib::rgb_pixel>& image, dlib::point center, int radius, dlib::rgb_pixel color) {
-    long x0 = center.x();
-    long y0 = center.y();
-    int r2 = radius * radius;
-
-    for (long y = y0 - radius; y <= y0 + radius; y++) {
-        for (long x = x0 - radius; x <= x0 + radius; x++) {
-            if ((x - x0) * (x - x0) + (y - y0) * (y - y0) <= r2) {
-                SetPixel(image, x, y, color);
-            }
-        }
-    }
-}
-
-void DrawPoints(dlib::array2d<dlib::rgb_pixel>& image, const dlib::full_object_detection& landmarks, int start, int end, dlib::rgb_pixel color) {
-    for (int i = start; i < end; ++i) {
-        dlib::point p1(landmarks.part(i).x(), landmarks.part(i).y());
-        dlib::point p2(landmarks.part(i+1).x(), landmarks.part(i+1).y());
-        dlib::draw_line(image, p1, p2, color);
-    }
-}
-
 void DlibFaceLandmarkDetector_DrawDetectResult(FaceLandmarkDetector* detector, unsigned char* byteArray, int texWidth, int texHeight, int bytesPerPixel, bool flip, int r, int g, int b, int a, int thickness) {
-    dlib::array2d<dlib::rgb_pixel> dlib_img(texHeight, texWidth);
-    memcpy(&dlib_img[0][0], byteArray, texWidth * texHeight * sizeof(dlib::rgb_pixel));
-
-    dlib::rgb_pixel color = dlib::rgb_pixel(r, g, b);
-
-    for (const auto& face : detector->faces) {
-        DrawRectangle(dlib_img, face, color, thickness);
-    }
-    
+    cv::Mat image(texHeight, texWidth, CV_8UC4, byteArray);
     if (flip) {
-        dlib::flip_image_left_right(dlib_img, dlib_img);
+        cv::flip(image, image, 0);
     }
-
-    // Convert back to byteArray if necessary.
-    memcpy(byteArray, &dlib_img[0][0], texWidth * texHeight * sizeof(dlib::rgb_pixel));
+    for (const auto& rect : detector->faces) {
+        cv::Rect cvRect(rect.left(), rect.top(), rect.width(), rect.height());
+        cv::rectangle(image, cvRect, cv::Scalar(b, g, r, a), thickness);
+    }
+    if (flip) {
+        cv::flip(image, image, 0);
+    }
+    memcpy(byteArray, image.data, texWidth * texHeight * bytesPerPixel);
 }
 
-void DlibFaceLandmarkDetector_DrawDetectLandmarkResult(FaceLandmarkDetector* detector, unsigned char* byteArray, int texWidth, int texHeight, int bytesPerPixel, bool flip, int r, int g, int b, int a) {
-    dlib::array2d<dlib::rgb_pixel> dlib_img(texHeight, texWidth);
-    memcpy(&dlib_img[0][0], byteArray, texWidth * texHeight * sizeof(dlib::rgb_pixel));
-
-    dlib::rgb_pixel color = dlib::rgb_pixel(r, g, b);
+void DlibFaceLandmarkDetector_DrawDetectLandmarkResult(FaceLandmarkDetector* detector, unsigned char* byteArray, int texWidth, int texHeight, int bytesPerPixel, bool flip, int r, int g, int b, int a, int thickness) {
+    cv::Mat image(texHeight, texWidth, CV_8UC4, byteArray);
+    if (flip) {
+        cv::flip(image, image, 0);
+    }
 
     for (const auto& shape : detector->shapes) {
-        // Draw the facial landmarks with lines instead of circles
-        DrawPoints(dlib_img, shape, 0, 16, color);       // Jaw line
-        DrawPoints(dlib_img, shape, 17, 21, color);      // Left eyebrow
-        DrawPoints(dlib_img, shape, 22, 26, color);      // Right eyebrow
-        DrawPoints(dlib_img, shape, 27, 30, color);      // Nose bridge
-        DrawPoints(dlib_img, shape, 30, 35, color);      // Lower nose
-        DrawPoints(dlib_img, shape, 36, 41, color);      // Left eye
-        DrawPoints(dlib_img, shape, 42, 47, color);      // Right eye
-        DrawPoints(dlib_img, shape, 48, 59, color);      // Outer lip
-        DrawPoints(dlib_img, shape, 60, 67, color);      // Inner lip
+        for (unsigned long j = 0; j < shape.num_parts(); j++) {
+            cv::Point p(shape.part(j).x(), shape.part(j).y());
+            cv::circle(image, p, thickness, cv::Scalar(b, g, r, a), cv::FILLED);
+        }
     }
-
     if (flip) {
-        dlib::flip_image_left_right(dlib_img, dlib_img);
+        cv::flip(image, image, 0);
     }
-
-    // Convert back to byteArray if necessary.
-    memcpy(byteArray, &dlib_img[0][0], texWidth * texHeight * sizeof(dlib::rgb_pixel));
+    memcpy(byteArray, image.data, texWidth * texHeight * bytesPerPixel);
 }
 }

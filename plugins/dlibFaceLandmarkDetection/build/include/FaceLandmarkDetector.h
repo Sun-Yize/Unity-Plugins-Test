@@ -15,9 +15,9 @@ FaceLandmarkDetector* DlibFaceLandmarkDetector_Init();
 
 void DlibFaceLandmarkDetector_Dispose(FaceLandmarkDetector* detector);
 
-bool DlibFaceLandmarkDetector_LoadObjectDetector(FaceLandmarkDetector* detector, const wchar_t* objectDetectorFilename);
+bool DlibFaceLandmarkDetector_LoadObjectDetector(FaceLandmarkDetector* detector, const char* objectDetectorFilename);
 
-bool DlibFaceLandmarkDetector_LoadShapePredictor(FaceLandmarkDetector* detector, const wchar_t* shapePredictorFilename);
+bool DlibFaceLandmarkDetector_LoadShapePredictor(FaceLandmarkDetector* detector, const char* shapePredictorFilename);
 
 void DlibFaceLandmarkDetector_SetImage(FaceLandmarkDetector* detector, unsigned char* byteArray, int texWidth, int texHeight, int bytesPerPixel, bool flip);
 

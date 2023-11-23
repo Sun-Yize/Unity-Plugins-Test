@@ -6,6 +6,5 @@ plugins/dlibFaceLandmarkDetection/csharp
 plugins/dlibFaceLandmarkDetection/csharp_old
 plugins/dlibFaceLandmarkDetection/test_data
 plugins/OpenCVSharp
-unity_test
 plugins/dlibFaceLandmarkDetection/opencv4
 plugins/OpenCv

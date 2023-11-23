@@ -1,11 +1,5 @@
 {
   "dependencies": {
-    "com.github.homuler.mediapipe": {
-      "version": "file:com.github.homuler.mediapipe-0.12.0",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {}
-    },
     "com.unity.collab-proxy": {
       "version": "2.0.4",
       "depth": 0,

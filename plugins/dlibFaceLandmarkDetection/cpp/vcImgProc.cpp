@@ -1,8 +1,8 @@
-#include <opencv2/opencv.hpp>
+#include "vcPlugin.h"
 
 extern "C" {
 
-void VCImageProc_GetMeanColor(unsigned char* image, int imageWidth, int imageHeight, 
+DLL_EXPORT void VCImageProc_GetMeanColor(unsigned char* image, int imageWidth, int imageHeight, 
                           unsigned char* mask, int maskWidth, int maskHeight, 
                           unsigned char* outColor) {
     cv::Mat imageMat(imageHeight, imageWidth, CV_8UC4, image);
@@ -17,7 +17,7 @@ void VCImageProc_GetMeanColor(unsigned char* image, int imageWidth, int imageHei
     outColor[3] = 255; // Alpha
 }
 
-void VCImageProc_BlurMask(unsigned char* byteArray, int width, int height, int kernelWidth, int kernelHeight) {
+DLL_EXPORT void VCImageProc_BlurMask(unsigned char* byteArray, int width, int height, int kernelWidth, int kernelHeight) {
     cv::Mat image(height, width, CV_8UC4, byteArray);
     cv::Mat blurredImage;
     cv::GaussianBlur(image, blurredImage, cv::Size(kernelWidth, kernelHeight), 0);

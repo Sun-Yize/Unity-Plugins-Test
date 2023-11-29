@@ -1,5 +1,5 @@
 {
-    "identity_matrix": {
+    "warpMatrix": {
         "type_id": "opencv-matrix",
         "rows": 3,
         "cols": 3,

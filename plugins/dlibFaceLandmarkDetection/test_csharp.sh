@@ -8,13 +8,15 @@
 
 
 clear
-clang++ -std=c++14 -O3 -march=native -shared -o build/lib/libFaceLandmarkDetector.dylib \
-    cpp/dlibFaceLandmarkDetector.cpp \
-    -I/Users/charlie/Documents/vscode_projects/build_test/repos/build/dlib-19.24-static/include \
-    -I/Users/charlie/Documents/vscode_projects/build_test/plugins/OpenCv/opencv4/ \
-    -L/Users/charlie/Documents/vscode_projects/build_test/repos/build/dlib-19.24-static/lib \
-    -L/Users/charlie/Documents/vscode_projects/build_test/plugins/OpenCv/opencv4/ \
-    -lopencv -ldlib -framework Accelerate
+# clang++ -std=c++14 -Ofast -march=native -shared -o build/lib/libVCPlugin.dylib \
+#     cpp/vcFaceDet.cpp \
+#     cpp/vcImgProc.cpp \
+#     cpp/vcDeskCal.cpp \
+#     -I/Users/charlie/Documents/vscode_projects/build_test/repos/build/dlib-19.24-static/include \
+#     -I/Users/charlie/Documents/vscode_projects/build_test/plugins/OpenCv/opencv4/ \
+#     -L/Users/charlie/Documents/vscode_projects/build_test/repos/build/dlib-19.24-static/lib \
+#     -L/Users/charlie/Documents/vscode_projects/build_test/plugins/OpenCv/opencv4/ \
+#     -lopencv -ldlib -framework Accelerate
 
 # g++ -std=c++14 -shared -o build/lib/libFaceLandmarkDetector.dylib \
 #     cpp/dlibFaceLandmarkDetector.cpp \
@@ -23,12 +25,9 @@ clang++ -std=c++14 -O3 -march=native -shared -o build/lib/libFaceLandmarkDetecto
 #     -L/Users/charlie/Documents/vscode_projects/build_test/repos/build/dlib-19.24-static/lib \
 #     -L/Users/charlie/Documents/vscode_projects/build_test/repos/build/opencv2.framework/ \
 #     -lopencv -ldlib -framework Accelerate
-
-clang++ -std=c++14 -O3 -march=native face_detector \
-    cpp/implyment.cpp \
-    -I$(brew --prefix opencv@3)/include -L$(brew --prefix opencv@3)/lib \
-    -I$(pwd)/build/include -L$(pwd)/build/lib \
-    -lopencv_core -lopencv_highgui -lopencv_imgcodecs -lopencv_imgproc \
-    -lFaceLandmarkDetector
+g++ -std=c++14 cpp/vcDeskCal.cpp -o face_detector \
+    -I/Users/charlie/Documents/vscode_projects/build_test/plugins/OpenCv/opencv4/ \
+    -L/Users/charlie/Documents/vscode_projects/build_test/plugins/OpenCv/opencv4/ \
+    -lopencv -framework Accelerate
 
 ./face_detector

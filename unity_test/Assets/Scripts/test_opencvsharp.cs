@@ -5,7 +5,7 @@ using VCFaceDetection;
 
 public class test_opencvsharp : MonoBehaviour
 {
-    VCFaceDetector det = new VCFaceDetector("/Users/charlie/Documents/vscode_projects/build_test/unity_test/Assets/test_data/sp_human_face_68_for_mobile.dat");
+    VCFaceDetector det = new VCFaceDetector("/Users/charlie/Documents/vscode_projects/build_test/unity_test/Assets/test_data/sp_human_face_68.dat");
     private WebCamTexture webCamTexture;
     private Texture2D displayTexture;
     private bool isProcessing;
@@ -38,8 +38,8 @@ public class test_opencvsharp : MonoBehaviour
                 if (faces.Count > 0)
                 {
                     var landmarks = det.DetectLandmarkArray(faces[0]);
-                    det.DrawDetectResult(image, webCamTexture.width, webCamTexture.height, 4, true, 255, 0, 0, 255, 5);
-                    det.DrawDetectLandmarkResult(image, webCamTexture.width, webCamTexture.height, 4, true, 255, 0, 255, 0, 5);
+                    det.DrawDetectResult(image, webCamTexture.width, webCamTexture.height, 4, true, 255, 255, 255, 255, 2);
+                    det.DrawDetectLandmarkResult(image, webCamTexture.width, webCamTexture.height, 4, true, 238, 226, 125, 0, 2);
                     displayTexture.SetPixels32(image);
                     displayTexture.Apply();
                     GetComponent<Renderer>().material.mainTexture = displayTexture;

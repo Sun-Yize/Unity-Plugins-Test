@@ -142,12 +142,72 @@ void VCFaceDetector_DrawDetectLandmarkResult(FaceLandmarkDetector* detector, uns
         cv::flip(image, image, 0);
     }
 
+    // We'll define a lambda function to draw lines between points
+    auto drawLine = [&](const dlib::point& pt1, const dlib::point& pt2, const cv::Scalar& color) {
+        // Convert from 'point' (or whatever type is returned by shape.part(j)) to 'cv::Point'
+        cv::Point p1(static_cast<int>(pt1.x()), static_cast<int>(pt1.y()));
+        cv::Point p2(static_cast<int>(pt2.x()), static_cast<int>(pt2.y()));
+        cv::line(image, p1, p2, color, thickness);
+    };
+
+
     for (const auto& shape : detector->shapes) {
-        for (unsigned long j = 0; j < shape.num_parts(); j++) {
-            cv::Point p(shape.part(j).x(), shape.part(j).y());
-            cv::circle(image, p, thickness, cv::Scalar(b, g, r, a), cv::FILLED);
+        // Draw lines for jawline
+        for (unsigned long j = 0; j <= 16; j++) {
+            if (j < 16) drawLine(shape.part(j), shape.part(j + 1), cv::Scalar(b, g, r, a));
         }
+
+        // Draw lines for left eyebrow
+        for (unsigned long j = 17; j < 21; j++) {
+            drawLine(shape.part(j), shape.part(j + 1), cv::Scalar(b, g, r, a));
+        }
+
+        // Draw lines for right eyebrow
+        for (unsigned long j = 22; j < 26; j++) {
+            drawLine(shape.part(j), shape.part(j + 1), cv::Scalar(b, g, r, a));
+        }
+
+        // Draw lines for nose bridge
+        for (unsigned long j = 27; j < 30; j++) {
+            drawLine(shape.part(j), shape.part(j + 1), cv::Scalar(b, g, r, a));
+        }
+
+        // Draw lines for lower nose
+        for (unsigned long j = 30; j < 35; j++) {
+            if (j < 35) drawLine(shape.part(j), shape.part(j + 1), cv::Scalar(b, g, r, a));
+        }
+        // Close the loop for the lower nose
+        drawLine(shape.part(30), shape.part(35), cv::Scalar(b, g, r, a));
+
+        // Draw lines for left eye
+        for (unsigned long j = 36; j < 41; j++) {
+            drawLine(shape.part(j), shape.part(j + 1), cv::Scalar(99, 135, 227, a));
+        }
+        // Close the loop for the left eye
+        drawLine(shape.part(36), shape.part(41), cv::Scalar(99, 135, 227, a));
+
+        // Draw lines for right eye
+        for (unsigned long j = 42; j < 47; j++) {
+            drawLine(shape.part(j), shape.part(j + 1), cv::Scalar(203, 129, 180, a));
+        }
+        // Close the loop for the right eye
+        drawLine(shape.part(42), shape.part(47), cv::Scalar(203, 129, 180, a));
+
+        // Draw lines for outer lip
+        for (unsigned long j = 48; j < 59; j++) {
+            drawLine(shape.part(j), shape.part(j + 1), cv::Scalar(b, g, r, a));
+        }
+        // Close the loop for the outer lip
+        drawLine(shape.part(48), shape.part(59), cv::Scalar(b, g, r, a));
+
+        // Draw lines for inner lip
+        for (unsigned long j = 60; j < 67; j++) {
+            drawLine(shape.part(j), shape.part(j + 1), cv::Scalar(b, g, r, a));
+        }
+        // Close the loop for the inner lip
+        drawLine(shape.part(60), shape.part(67), cv::Scalar(b, g, r, a));
     }
+
     if (flip) {
         cv::flip(image, image, 0);
     }

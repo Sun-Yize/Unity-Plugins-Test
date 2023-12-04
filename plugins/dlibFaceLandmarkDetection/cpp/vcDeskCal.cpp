@@ -107,24 +107,28 @@ int VCDeskCalibrate_GetHullContour(DeskCalibrator* calibrator, float* outPoints)
 }
 
 void VCDeskCalibrate_EnhanceImage(DeskCalibrator* calibrator, unsigned char* byteArray, int width, int height) {
-    if (calibrator->frame.empty() || calibrator->frame.cols != width || calibrator->frame.rows != height) {
-        calibrator->frame.create(height, width, CV_8UC4);
-    }
-    memcpy(calibrator->frame.data, byteArray, width * height * 4);
-    cv::cvtColor(calibrator->frame, calibrator->frame, cv::COLOR_BGR2YUV);
-
-    std::vector<cv::Mat> channels;
-    cv::split(calibrator->frame, channels);
-
-    cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE(2.0, cv::Size(4, 4));
-    cv::Mat imgDest;
-    clahe->apply(channels[0], imgDest);
-
-    imgDest.copyTo(channels[0]);
-    cv::merge(channels, calibrator->frame);
-    cv::cvtColor(calibrator->frame, calibrator->frame, cv::COLOR_YUV2BGR);
-
-    memcpy(byteArray, calibrator->frame.data, width * height * 4);
+    cv::Mat image(height, width, CV_8UC4, byteArray);
+    std::vector<cv::Mat> channels(4);
+    cv::split(image, channels);
+    cv::Mat rgb;
+    cv::merge(std::vector<cv::Mat>{channels[0], channels[1], channels[2]}, rgb);
+    cv::Mat ycrcb;
+    cv::cvtColor(rgb, ycrcb, cv::COLOR_BGR2YCrCb);
+    std::vector<cv::Mat> ycrcb_channels;
+    cv::split(ycrcb, ycrcb_channels);
+    cv::equalizeHist(ycrcb_channels[0], ycrcb_channels[0]);
+    cv::merge(ycrcb_channels, ycrcb);
+    cv::cvtColor(ycrcb, rgb, cv::COLOR_YCrCb2BGR);
+    cv::Mat sharpeningKernel = (cv::Mat_<float>(3, 3) <<
+                                -1, -1, -1,
+                                -1,  9, -1,
+                                -1, -1, -1);
+    cv::filter2D(rgb, rgb, rgb.depth(), sharpeningKernel);
+    std::vector<cv::Mat> rgb_channels;
+    cv::split(rgb, rgb_channels);
+    rgb_channels.push_back(channels[3]);
+    cv::merge(rgb_channels, image);
+    memcpy(byteArray, image.data, width * height * 4);
 }
 
 int main() {

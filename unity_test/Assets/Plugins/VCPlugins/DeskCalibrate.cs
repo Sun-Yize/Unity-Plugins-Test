@@ -45,6 +45,15 @@ public class VCCalibrator
         VCDeskCalibrate_CalWarpMatrix(nativeObj, srcPointsArray, desPointsArray);
     }
 
+    public Texture2D WebCamTexToTex2D(WebCamTexture frame)
+    {
+        Texture2D result = new Texture2D(frame.width, frame.height, TextureFormat.RGB24, false);
+        var image = frame.GetPixels32();
+        result.SetPixels32(image);
+        result.Apply();
+        return result;
+    }
+
     public Texture2D WarpPerspective(Texture2D frame, int width, int height)
     {
         Texture2D result = new Texture2D(width, height, TextureFormat.RGB24, false);
@@ -112,13 +121,14 @@ public class VCCalibrator
 
     public Texture2D EnhanceImage(Texture2D frame)
     {
+        Texture2D result = new Texture2D(frame.width, frame.height, TextureFormat.RGB24, false);
         var image = frame.GetPixels32();
         GCHandle arrayHandle = GCHandle.Alloc(image, GCHandleType.Pinned);
         VCDeskCalibrate_EnhanceImage(nativeObj, arrayHandle.AddrOfPinnedObject(), frame.width, frame.height);
         arrayHandle.Free();
-        frame.SetPixels32(image);
-        frame.Apply();
-        return frame;
+        result.SetPixels32(image);
+        result.Apply();
+        return result;
     }
 
     public Texture2D EnhanceImage(WebCamTexture frame)
@@ -132,6 +142,5 @@ public class VCCalibrator
         result.Apply();
         return result;
     }
-
 }
 }
